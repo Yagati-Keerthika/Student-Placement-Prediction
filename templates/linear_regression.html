@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}
+Linear Regression
+{% endblock %}
+
+{% block content %}
+
+<div class="prediction-page">
+
+    <h1>
+        Linear Regression Model
+    </h1>
+
+    <p class="lead">
+        Select the input feature(s) and the target feature, then train the model and predict the output value.
+    </p>
+
+    {% if error %}
+    <p class="error">
+        {{ error }}
+    </p>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-section">
+            <h3>Select Input Features</h3>
+
+            {% for column in numeric_columns %}
+            <label>
+                <input type="checkbox" name="feature" value="{{ column }}" {% if column in selected_features %} checked
+                    {% endif %}>
+                {{ column }}
+            </label>
+            <br>
+            {% endfor %}
+        </div>
+
+        <div class="form-section">
+            <h3>Select Output Feature</h3>
+
+            <select name="target_feature">
+                {% for column in numeric_columns %}
+                <option value="{{ column }}" {% if column==target_column %} selected {% endif %}>
+                    {{ column }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit">
+            Train Model
+        </button>
+    </form>
+
+    {% if metrics %}
+    <div class="success-box">
+        <h3>Model Evaluation</h3>
+
+        <p>
+            <strong>Selected Input Features:</strong>
+            {{ metrics.selected_features | join(', ') }}
+        </p>
+
+        <p>
+            <strong>Target Feature:</strong>
+            {{ metrics.target_column }}
+        </p>
+
+        <p>
+            <strong>Training Samples:</strong>
+            {{ metrics.train_samples }}
+        </p>
+
+        <p>
+            <strong>Testing Samples:</strong>
+            {{ metrics.test_samples }}
+        </p>
+
+        <p>
+            <strong>Coefficient:</strong>
+            {{ metrics.coef }}
+        </p>
+
+        <p>
+            <strong>Intercept:</strong>
+            {{ metrics.intercept }}
+        </p>
+
+        <p>
+            <strong>MSE:</strong>
+            {{ metrics.mse }}
+        </p>
+
+        <p>
+            <strong>RMSE:</strong>
+            {{ metrics.rmse }}
+        </p>
+
+        <p>
+            <strong>MAE:</strong>
+            {{ metrics.mae }}
+        </p>
+
+        <p>
+            <strong>R-Square:</strong>
+            {{ metrics.r2 }}
+        </p>
+    </div>
+    {% endif %}
+
+    {% if metrics and selected_features %}
+    <form method="POST">
+        <div class="form-section">
+            <h3>Enter Values for Prediction</h3>
+
+            {% for column in selected_features %}
+            <div class="input-row">
+                <label for="{{ column }}">{{ column }}:</label>
+                <input type="number" step="0.01" name="{{ column }}" id="{{ column }}" required>
+            </div>
+            {% endfor %}
+        </div>
+
+        <input type="hidden" name="target_feature" value="{{ target_column }}">
+        {% for column in selected_features %}
+        <input type="hidden" name="feature" value="{{ column }}">
+        {% endfor %}
+
+        <button type="submit">
+            Predict Output
+        </button>
+    </form>
+    {% endif %}
+
+    {% if prediction_result is not none %}
+    <div class="success-box">
+        <h2>
+            Predicted {{ target_column }}: {{ prediction_result | round(2) }}
+        </h2>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

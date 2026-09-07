@@ -38,6 +38,19 @@ body {
 }
 
 
+.sidebar-nav {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+}
+
+
+
+
 /* =========================================================
    SIDEBAR
    ========================================================= */
@@ -112,9 +125,50 @@ body {
 
     flex: 1;
 
-    padding: 40px;
+    padding: 40px 40px 24px;
 
     background: rgba(255, 255, 255, 0.18);
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.content-body {
+
+    flex: 1;
+
+}
+
+
+.main-footer {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 24px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.35);
+
+    color: #334155;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+}
+
+
+.main-footer p {
+
+    margin: 0;
 
 }
 
@@ -1144,5 +1198,68 @@ select {
         font-size: 14px;
 
     }
+
+}
+
+
+/* =========================================================
+   LOGISTIC REGRESSION PAGE
+   ========================================================= */
+
+.logistic-page {
+
+    max-width: 900px;
+
+}
+
+
+.logistic-feature-list {
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+
+    gap: 10px 18px;
+
+}
+
+
+.logistic-feature-list h3 {
+
+    grid-column: 1 / -1;
+
+}
+
+
+.logistic-feature-list label {
+
+    padding: 10px 12px;
+
+    background-color: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 5px;
+
+}
+
+
+.logistic-feature-list input {
+
+    margin-right: 8px;
+
+}
+
+
+.logistic-metrics p {
+
+    margin: 9px 0;
+
+}
+
+
+.logistic-result {
+
+    border-left: 5px solid #16a34a;
 
 }

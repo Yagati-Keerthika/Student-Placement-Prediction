@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}
+Logistic Regression
+{% endblock %}
+
+{% block content %}
+
+<div class="prediction-page logistic-page">
+
+    <h1>
+        Logistic Regression Model
+    </h1>
+
+    <p class="lead">
+        Select numeric input features to classify whether a student will be placed.
+    </p>
+
+    {% if error %}
+    <p class="error">
+        {{ error }}
+    </p>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-section logistic-feature-list">
+            <h3>Select Input Features</h3>
+
+            {% for column in numeric_columns %}
+            <label>
+                <input type="checkbox" name="feature" value="{{ column }}" {% if column in selected_features %}checked{%
+                    endif %}>
+                {{ column }}
+            </label>
+            {% endfor %}
+        </div>
+
+        <div class="form-section">
+            <h3>Select Target Feature</h3>
+
+            <select name="target_feature">
+                {% for column in target_candidates %}
+                <option value="{{ column }}" {% if column==target_column %}selected{% endif %}>
+                    {{ column }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit">
+            Train Model
+        </button>
+    </form>
+
+    {% if metrics %}
+    <div class="success-box logistic-metrics">
+        <h3>Model Evaluation</h3>
+
+        <p><strong>Selected Input Features:</strong> {{ metrics.selected_features | join(', ') }}</p>
+        <p><strong>Target Feature:</strong> {{ metrics.target_column }}</p>
+        <p><strong>Target Classes:</strong> {{ metrics.target_labels | join(', ') }}</p>
+        <p><strong>Training Samples:</strong> {{ metrics.train_samples }}</p>
+        <p><strong>Testing Samples:</strong> {{ metrics.test_samples }}</p>
+        <p><strong>Accuracy:</strong> {{ "%.2f"|format(metrics.accuracy * 100) }}%</p>
+        <p><strong>Precision:</strong> {{ "%.2f"|format(metrics.precision * 100) }}%</p>
+        <p><strong>Recall:</strong> {{ "%.2f"|format(metrics.recall * 100) }}%</p>
+        <p><strong>F1 Score:</strong> {{ "%.2f"|format(metrics.f1 * 100) }}%</p>
+        <p><strong>Coefficients:</strong> {{ metrics.coef }}</p>
+        <p><strong>Intercept:</strong> {{ metrics.intercept }}</p>
+
+        <h4>Confusion Matrix</h4>
+        <table class="confusion-matrix">
+            <thead>
+                <tr>
+                    <th></th>
+                    {% for label in metrics.target_labels %}
+                    <th>{{ label }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in metrics.confusion_matrix %}
+                <tr>
+                    <th>{{ metrics.target_labels[loop.index0] }}</th>
+                    {% for value in row %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if metrics and selected_features %}
+    <form method="POST">
+        <div class="form-section">
+            <h3>Enter Values for Prediction</h3>
+
+            {% for column in selected_features %}
+            <div class="input-row">
+                <label for="{{ column }}">{{ column }}:</label>
+                <input type="number" step="0.01" name="{{ column }}" id="{{ column }}" required>
+            </div>
+            {% endfor %}
+        </div>
+
+        <input type="hidden" name="target_feature" value="{{ target_column }}">
+        {% for column in selected_features %}
+        <input type="hidden" name="feature" value="{{ column }}">
+        {% endfor %}
+
+        <button type="submit">
+            Predict Placement
+        </button>
+    </form>
+    {% endif %}
+
+    {% if prediction_result is not none %}
+    <div class="success-box logistic-result">
+        <h2>
+            Predicted {{ target_column }}: {{ prediction_result }}
+        </h2>
+        {% if prediction_probability is not none %}
+        <p>
+            Prediction Confidence: {{ "%.2f"|format(prediction_probability * 100) }}%
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

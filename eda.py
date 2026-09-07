@@ -1,49 +1,44 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-# Read CSV file
-file_path = "uploads/student_placement_prediction_dataset_2026.csv"
 
-df = pd.read_csv(file_path)
+def load_eda_dataset(filepath):
+    return pd.read_csv(filepath)
 
-# Number of rows and columns
-print("Number of Rows:", df.shape[0])
-print("Number of Columns:", df.shape[1])
 
-# First 10 rows
-print("\nFirst 10 Rows:")
-print(df.head(10))
+def get_dataset_summary(df):
+    return {
+        "rows": df.shape[0],
+        "columns": df.shape[1],
+        "preview": df.head(10),
+        "tail": df.tail(10),
+        "missing": df.isnull().sum(),
+        "describe": df.describe(include="all"),
+        "numerical_columns": df.select_dtypes(include="number").columns.tolist(),
+        "categorical_columns": df.select_dtypes(exclude="number").columns.tolist()
+    }
 
-# Last 10 rows
-print("\nLast 10 Rows:")
-print(df.tail(10))
 
-# Missing values
-print("\nMissing Values:")
-print(df.isnull().sum())
+def print_dataset_summary(df):
+    summary = get_dataset_summary(df)
 
-# Data types and memory information
-print("\nData Information:")
-df.info()
+    print("Number of Rows:", summary["rows"])
+    print("Number of Columns:", summary["columns"])
+    print("\nFirst 10 Rows:")
+    print(summary["preview"])
+    print("\nLast 10 Rows:")
+    print(summary["tail"])
+    print("\nMissing Values:")
+    print(summary["missing"])
+    print("\nData Information:")
+    df.info()
+    print("\nStatistical Information:")
+    print(summary["describe"])
+    print("\nNumerical Columns:")
+    print(summary["numerical_columns"])
+    print("\nCategorical Columns:")
+    print(summary["categorical_columns"])
 
-# Statistical information
-print("\nStatistical Information:")
-print(df.describe())
 
-# Numerical columns
-numerical_columns = df.select_dtypes(
-    include=np.number
-).columns.tolist()
-
-print("\nNumerical Columns:")
-print(numerical_columns)
-
-# Categorical columns
-categorical_columns = df.select_dtypes(
-    exclude=np.number
-).columns.tolist()
-
-print("\nCategorical Columns:")
-print(categorical_columns)
+if __name__ == "__main__":
+    data_path = "uploads/student_placement_prediction_dataset_2026.csv"
+    print_dataset_summary(load_eda_dataset(data_path))

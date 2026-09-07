@@ -109,3 +109,37 @@ def train_model(df, target_column):
 
 
     return model, accuracy
+
+
+def prepare_prediction_page(df, submitted=False):
+
+    target_column = next(
+        (
+            column for column in [
+                "placement",
+                "placed",
+                "status",
+                "placement_status"
+            ]
+            if column in df.columns
+        ),
+        None
+    )
+
+    page_data = {
+        "prediction_result": None,
+        "accuracy": None,
+        "target_column": target_column,
+        "error": None
+    }
+
+    if target_column is None:
+        page_data["error"] = "Placement target column not found."
+        return page_data
+
+    if submitted:
+        _, accuracy = train_model(df, target_column)
+        page_data["prediction_result"] = "Model trained successfully."
+        page_data["accuracy"] = accuracy
+
+    return page_data

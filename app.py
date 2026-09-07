@@ -17,7 +17,11 @@ import numpy as np
 
 
 # Machine Learning
-from main import train_model
+from main import prepare_prediction_page
+from linear_regression import prepare_linear_regression_page
+from logistic_regression import prepare_logistic_regression_page
+from decision_tree import prepare_decision_tree_page
+from random_forest import prepare_random_forest_page
 
 
 # Preprocessing
@@ -31,7 +35,10 @@ from preprocessing import (
     fill_categorical_missing_values,
     fill_missing_values,
     encode_data,
-    scale_data
+    scale_data,
+    prepare_missing_value_page,
+    prepare_encoding_page,
+    prepare_scaling_page
 )
 
 
@@ -367,145 +374,18 @@ def missing_value():
     )
 
 
-    table = None
-
-    message = None
-
-    missing_summary = get_missing_values(df).to_html(
-        classes="table table-bordered"
+    page_data = prepare_missing_value_page(
+        df,
+        filename,
+        request.form,
+        request.method == "POST",
+        PROCESSED_FOLDER
     )
 
-    missing_columns = get_missing_columns(df)
-
-    code_example = None
-
-
-    # =====================================================
-    # APPLY MISSING VALUE HANDLING
-    # =====================================================
-
-    if request.method == "POST":
-
-        method = request.form.get(
-            "method",
-            "mean"
-        )
-
-        selected_columns = request.form.getlist(
-            "columns"
-        )
-
-        if not selected_columns:
-
-            selected_columns = missing_columns
-
-        if method == "all":
-
-            df = fill_missing_values(
-                df,
-                "all",
-                selected_columns
-            )
-
-            message = (
-                "Missing values filled with the default "
-                "mean for numeric columns and mode for "
-                "categorical columns."
-            )
-
-        else:
-
-            df = fill_missing_values(
-                df,
-                method,
-                selected_columns
-            )
-
-            message = (
-                f"Selected columns were filled using "
-                f"{method.upper()}."
-            )
-
-        code_example = (
-            "df = df.copy()\n"
-            f"columns = {selected_columns}\n"
-            f"method = '{method}'\n"
-            "for column in columns:\n"
-            "    if column in df.columns and df[column].isnull().sum() > 0:\n"
-            "        if pd.api.types.is_numeric_dtype(df[column]):\n"
-            "            if method == 'mean':\n"
-            "                df[column] = df[column].fillna(df[column].mean())\n"
-            "            elif method == 'median':\n"
-            "                df[column] = df[column].fillna(df[column].median())\n"
-            "        else:\n"
-            "            df[column] = df[column].fillna(df[column].mode().iloc[0])\n"
-        )
-
-        # =================================================
-        # SAVE PROCESSED DATASET
-        # =================================================
-
-        processed_filename = (
-            "missing_" + filename
-        )
-
-
-        processed_path = os.path.join(
-
-            PROCESSED_FOLDER,
-
-            processed_filename
-        )
-
-
-        df.to_csv(
-
-            processed_path,
-
-            index=False
-        )
-
-
-        # =================================================
-        # PREVIEW
-        # =================================================
-
-        table = df.head(
-            10
-        ).to_html(
-
-            classes="table table-bordered",
-
-            index=False
-        )
-
-    else:
-
-        code_example = (
-            "# Example:\n"
-            "# df = df.copy()\n"
-            "# columns = ['CGPA', 'Gender']\n"
-            "# for column in columns:\n"
-            "#     if df[column].isnull().sum() > 0:\n"
-            "#         df[column] = df[column].fillna(df[column].mean())\n"
-        )
-
-
     return render_template(
-
         "missing_value.html",
-
         filename=filename,
-
-        missing_summary=missing_summary,
-
-        missing_columns=missing_columns,
-
-        table=table,
-
-        message=message,
-
-        code_example=code_example
+        **page_data
     )
 
 
@@ -545,110 +425,18 @@ def encoding():
     )
 
 
-    table = None
-
-    message = None
-
-    code_example = None
-
-    categorical_columns = get_categorical_columns(
-        df
+    page_data = prepare_encoding_page(
+        df,
+        filename,
+        request.form,
+        request.method == "POST",
+        PROCESSED_FOLDER
     )
 
-
-    # =====================================================
-    # APPLY ENCODING
-    # =====================================================
-
-    if request.method == "POST":
-
-        encoding_method = request.form.get(
-            "method",
-            "label"
-        )
-
-        selected_columns = request.form.getlist(
-            "columns"
-        )
-
-        if not selected_columns:
-
-            selected_columns = categorical_columns
-
-        df = encode_data(
-            df,
-            encoding_method=encoding_method,
-            columns=selected_columns
-        )
-
-        message = (
-            f"Categorical data encoded using "
-            f"{encoding_method.upper()} encoding."
-        )
-
-        code_example = (
-            "# Example:\n"
-            f"columns = {selected_columns}\n"
-            f"method = '{encoding_method}'\n"
-            "if method == 'onehot':\n"
-            "    df = pd.get_dummies(df, columns=columns)\n"
-            "else:\n"
-            "    for column in columns:\n"
-            "        df[column] = df[column].astype('category').cat.codes\n"
-        )
-
-        # =================================================
-        # SAVE PROCESSED DATASET
-        # =================================================
-
-        processed_filename = (
-            "encoded_" + filename
-        )
-
-
-        processed_path = os.path.join(
-
-            PROCESSED_FOLDER,
-
-            processed_filename
-        )
-
-
-        df.to_csv(
-
-            processed_path,
-
-            index=False
-        )
-
-
-        # =================================================
-        # PREVIEW
-        # =================================================
-
-        table = df.head(
-            10
-        ).to_html(
-
-            classes="table table-bordered",
-
-            index=False
-        )
-
-
     return render_template(
-
         "encoding.html",
-
         filename=filename,
-
-        categorical_columns=categorical_columns,
-
-        table=table,
-
-        message=message,
-
-        code_example=code_example
+        **page_data
     )
 
 
@@ -667,152 +455,36 @@ def scaling():
         "dataset"
     )
 
-
     if filename is None:
 
         return redirect(
             "/upload"
         )
 
-
     filepath = os.path.join(
-
         UPLOAD_FOLDER,
-
         filename
     )
-
 
     df = pd.read_csv(
         filepath
     )
 
-
-    table = None
-
-    method_name = None
-
-
-    # =====================================================
-    # NUMERICAL COLUMNS
-    # =====================================================
-
-    numerical_columns = get_numerical_columns(
-        df
+    page_data = prepare_scaling_page(
+        df,
+        filename,
+        request.form,
+        request.method == "POST",
+        PROCESSED_FOLDER
     )
 
-
-    # =====================================================
-    # APPLY SCALING
-    # =====================================================
-
-    if request.method == "POST":
-
-        scaling_method = request.form.get(
-            "scaling_method"
-        )
-
-        selected_columns = request.form.getlist(
-            "columns"
-        )
-
-        if not selected_columns:
-
-            selected_columns = numerical_columns
-
-
-        if scaling_method == "standard":
-
-            method_name = (
-                "Standard Scaler"
-            )
-
-
-        elif scaling_method == "minmax":
-
-            method_name = (
-                "Min-Max Scaler"
-            )
-
-
-        elif scaling_method == "normalize":
-
-            method_name = (
-                "Normalization"
-            )
-
-
-        else:
-
-            return (
-                "Please select a scaling method."
-            )
-
-
-        # =================================================
-        # APPLY SCALING
-        # =================================================
-
-        df = scale_data(
-
-            df,
-
-            scaling_method,
-
-            selected_columns
-        )
-
-
-        # =================================================
-        # SAVE PROCESSED DATASET
-        # =================================================
-
-        processed_filename = (
-            "scaled_" + filename
-        )
-
-
-        processed_path = os.path.join(
-
-            PROCESSED_FOLDER,
-
-            processed_filename
-        )
-
-
-        df.to_csv(
-
-            processed_path,
-
-            index=False
-        )
-
-
-        # =================================================
-        # SCALED DATASET PREVIEW
-        # =================================================
-
-        table = df.head(
-            10
-        ).to_html(
-
-            classes="table table-bordered",
-
-            index=False
-        )
-
+    if page_data.get("error"):
+        return page_data["error"]
 
     return render_template(
-
         "scaling.html",
-
         filename=filename,
-
-        numerical_columns=numerical_columns,
-
-        table=table,
-
-        method_name=method_name
+        **page_data
     )
 
 
@@ -1275,6 +947,42 @@ def eda():
     )
 
 
+@app.route(
+    "/linear_regression",
+    methods=["GET", "POST"]
+)
+def linear_regression():
+
+    filename = session.get(
+        "dataset"
+    )
+
+    if filename is None:
+
+        return redirect(
+            "/upload"
+        )
+
+    filepath = os.path.join(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+    df = pd.read_csv(filepath)
+
+    page_data = prepare_linear_regression_page(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    return render_template(
+        "linear_regression.html",
+        filename=filename,
+        **page_data
+    )
+
+
 # =========================================================
 # PLACEMENT PREDICTION
 # =========================================================
@@ -1311,81 +1019,123 @@ def prediction():
     )
 
 
-    prediction_result = None
-
-    accuracy = None
-
-
-    # =====================================================
-    # TARGET COLUMN
-    # =====================================================
-
-    target_column = None
-
-
-    possible_targets = [
-
-        "placement",
-
-        "placed",
-
-        "status",
-
-        "placement_status"
-
-    ]
-
-
-    for column in possible_targets:
-
-        if column in df.columns:
-
-            target_column = column
-
-            break
-
-
-    if target_column is None:
-
-        return render_template(
-
-            "prediction.html",
-
-            error="Placement target column not found."
-        )
-
-
-    # =====================================================
-    # TRAIN MODEL
-    # =====================================================
-
-    if request.method == "POST":
-
-        model, accuracy = train_model(
-
-            df,
-
-            target_column
-        )
-
-
-        prediction_result = (
-
-            "Model trained successfully."
-        )
-
+    page_data = prepare_prediction_page(
+        df,
+        request.method == "POST"
+    )
 
     return render_template(
-
         "prediction.html",
-
         filename=filename,
+        **page_data
+    )
 
-        prediction_result=prediction_result,
 
-        accuracy=accuracy,
+# =========================================================
+# LOGISTIC REGRESSION FOR PLACEMENT CLASSIFICATION
+# =========================================================
 
-        target_column=target_column
+@app.route(
+    "/logistic_regression",
+    methods=["GET", "POST"]
+)
+def logistic_regression():
+
+    filename = session.get("dataset")
+
+    if filename is None:
+
+        return redirect("/upload")
+
+    filepath = os.path.join(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+    df = pd.read_csv(filepath)
+
+    page_data = prepare_logistic_regression_page(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    return render_template(
+        "logistic_regression.html",
+        filename=filename,
+        **page_data
+    )
+
+
+# =========================================================
+# DECISION TREE FOR PLACEMENT CLASSIFICATION
+# =========================================================
+
+@app.route(
+    "/decision_tree",
+    methods=["GET", "POST"]
+)
+def decision_tree():
+
+    filename = session.get("dataset")
+
+    if filename is None:
+
+        return redirect("/upload")
+
+    filepath = os.path.join(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+    df = pd.read_csv(filepath)
+
+    page_data = prepare_decision_tree_page(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    return render_template(
+        "decision_tree.html",
+        filename=filename,
+        **page_data
+    )
+
+
+# =========================================================
+# RANDOM FOREST FOR PLACEMENT CLASSIFICATION
+# =========================================================
+
+@app.route(
+    "/random_forest",
+    methods=["GET", "POST"]
+)
+def random_forest():
+
+    filename = session.get("dataset")
+
+    if filename is None:
+
+        return redirect("/upload")
+
+    filepath = os.path.join(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+    df = pd.read_csv(filepath)
+
+    page_data = prepare_random_forest_page(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    return render_template(
+        "random_forest.html",
+        filename=filename,
+        **page_data
     )
 
 

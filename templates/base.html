@@ -5,11 +5,9 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <title>
         {% block title %}
@@ -23,72 +21,97 @@
 <body>
 
 
-<div class="wrapper">
+    <div class="wrapper">
 
 
-    <!-- LEFT MENU -->
+        <!-- LEFT MENU -->
 
-    <aside class="sidebar">
+        <aside class="sidebar">
 
-        <h2>
-            ML Pipeline
-        </h2>
+            <h2>
+                ML Pipeline
+            </h2>
 
+            <nav class="sidebar-nav">
 
-        <a href="{{ url_for('home') }}">
-            HOME
-        </a>
-
-
-        <a href="{{ url_for('upload') }}">
-            UPLOAD DATA
-        </a>
+                <a href="{{ url_for('home') }}">
+                    HOME
+                </a>
 
 
-        <a href="{{ url_for('summary') }}">
-            DATA SUMMARY
-        </a>
+                <a href="{{ url_for('upload') }}">
+                    UPLOAD DATA
+                </a>
 
 
-        <a href="{{ url_for('missing_value') }}">
-            MISSING VALUES
-        </a>
+                <a href="{{ url_for('summary') }}">
+                    DATA SUMMARY
+                </a>
 
 
-        <a href="{{ url_for('encoding') }}">
-            ENCODING
-        </a>
+                <a href="{{ url_for('missing_value') }}">
+                    MISSING VALUES
+                </a>
 
 
-        <a href="{{ url_for('scaling') }}">
-            SCALING
-        </a>
+                <a href="{{ url_for('encoding') }}">
+                    ENCODING
+                </a>
 
 
-        <a href="{{ url_for('eda') }}">
-            VISUALIZATION
-        </a>
+                <a href="{{ url_for('scaling') }}">
+                    SCALING
+                </a>
 
 
-        <a href="{{ url_for('prediction') }}">
-            PREDICTION
-        </a>
-
-    </aside>
-
-
-    <!-- RIGHT CONTENT -->
-
-    <main class="content">
-
-        {% block content %}
-
-        {% endblock %}
-
-    </main>
+                <a href="{{ url_for('eda') }}">
+                    VISUALIZATION
+                </a>
+                <a href="{{ url_for('linear_regression') }}">
+                    LINEAR REGRESSION
+                </a>
 
 
-</div>
+                <a href="{{ url_for('logistic_regression') }}">
+                    LOGISTIC REGRESSION
+                </a>
+
+                <a href="{{ url_for('decision_tree') }}">
+                    DECISION TREE
+                </a>
+
+                <a href="{{ url_for('random_forest') }}">
+                    RANDOM FOREST
+                </a>
+
+                <a href="{{ url_for('prediction') }}">
+                    PREDICTION
+                </a>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- RIGHT CONTENT -->
+
+        <main class="content">
+
+            <div class="content-body">
+                {% block content %}
+
+                {% endblock %}
+            </div>
+
+            <footer class="main-footer">
+                <p>Student Placement Prediction Portal</p>
+                <span>© 2026 ML Pipeline</span>
+            </footer>
+
+        </main>
+
+
+    </div>
 
 
 </body>
