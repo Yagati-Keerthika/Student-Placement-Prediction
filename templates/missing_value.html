@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Missing Value Handling
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="pipeline-page">
+
+
+    <h1>
+        Missing Value Handling
+    </h1>
+
+
+    <h3>
+        Dataset
+    </h3>
+
+
+    <p>
+        {{ filename }}
+    </p>
+
+
+    <form method="POST" class="pipeline-form">
+
+
+        <label>
+            Select Missing Value Method
+        </label>
+
+
+        <select name="method" required>
+
+
+            <option value="">
+                Select Method
+            </option>
+
+
+            <option value="mean">
+                Mean
+            </option>
+
+
+            <option value="median">
+                Median
+            </option>
+
+
+            <option value="mode">
+                Mode
+            </option>
+
+
+            <option value="all">
+                All
+            </option>
+
+
+        </select>
+
+
+        <label>
+            Select Columns to Apply
+        </label>
+
+
+        <div class="checkbox-group">
+
+            {% for column in missing_columns %}
+
+            <label class="check-item">
+                <input type="checkbox" name="columns" value="{{ column }}" checked>
+                {{ column }}
+            </label>
+
+            {% endfor %}
+
+        </div>
+
+
+        <button type="submit">
+
+            Apply Method
+
+        </button>
+
+
+    </form>
+
+
+    {% if message %}
+
+    <p class="success">
+
+        {{ message }}
+
+    </p>
+
+    {% endif %}
+
+
+    {% if missing_summary is not none %}
+
+    <div class="summary-panel">
+
+        <h2>
+            Missing Value Summary
+        </h2>
+
+
+        <div class="table-container table-scroll-box">
+
+            {{ missing_summary|safe }}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    {% if code_example %}
+
+    <div class="code-block">
+
+        <h3>
+            Code Used
+        </h3>
+
+        <pre>{{ code_example }}</pre>
+
+    </div>
+
+    {% endif %}
+
+
+    {% if table %}
+
+    <h2>
+        Processed Dataset
+    </h2>
+
+
+    <div class="table-container table-scroll-box">
+
+        {{ table|safe }}
+
+    </div>
+
+    {% endif %}
+
+
+</div>
+
+
+{% endblock %}

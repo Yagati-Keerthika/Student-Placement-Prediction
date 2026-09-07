@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Encoding
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="pipeline-page">
+
+
+    <h1>
+        Categorical Data Encoding
+    </h1>
+
+
+    <h3>
+        Dataset
+    </h3>
+
+
+    <p>
+        {{ filename }}
+    </p>
+
+
+    <h2>
+        Categorical Columns
+    </h2>
+
+
+    <div class="column-list">
+
+        {% for column in categorical_columns %}
+
+        {{ column }}
+
+        <br>
+
+        {% endfor %}
+
+    </div>
+
+
+    <form method="POST" class="pipeline-form">
+
+
+        <label>
+            Select Encoding Method
+        </label>
+
+
+        <select name="method" required>
+
+
+            <option value="label">
+                Label Encoder
+            </option>
+
+
+            <option value="onehot">
+                One Hot Encoder
+            </option>
+
+
+        </select>
+
+
+        <label>
+            Select Columns to Encode
+        </label>
+
+
+        <div class="checkbox-group">
+
+            {% for column in categorical_columns %}
+
+            <label class="check-item">
+                <input type="checkbox" name="columns" value="{{ column }}" checked>
+                {{ column }}
+            </label>
+
+            {% endfor %}
+
+        </div>
+
+
+        <button type="submit">
+
+            Apply Encoding
+
+        </button>
+
+
+    </form>
+
+
+    {% if message %}
+
+    <p class="success">
+
+        {{ message }}
+
+    </p>
+
+    {% endif %}
+
+
+    {% if code_example %}
+
+    <div class="code-block">
+
+        <h3>
+            Code Used
+        </h3>
+
+        <pre>{{ code_example }}</pre>
+
+    </div>
+
+    {% endif %}
+
+
+    {% if table %}
+
+    <h2>
+        Encoded Dataset
+    </h2>
+
+
+    <div class="table-container table-scroll-box">
+
+        {{ table|safe }}
+
+    </div>
+
+    {% endif %}
+
+
+</div>
+
+
+{% endblock %}

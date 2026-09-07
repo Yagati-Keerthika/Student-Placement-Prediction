@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Visualization
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="visualization-page">
+
+
+    <h1>
+        Data Visualization
+    </h1>
+
+
+    <h3>
+        Dataset
+    </h3>
+
+
+    <p>
+        {{ filename }}
+    </p>
+
+
+    <!-- VISUALIZATION FORM -->
+
+
+    <form method="POST" class="pipeline-form">
+
+
+        <!-- VISUALIZATION TYPE -->
+
+
+        <label>
+            Select Visualization
+        </label>
+
+
+        <select name="visualization" required>
+
+
+            <option value="">
+                Select Visualization
+            </option>
+
+
+            <option value="bar">
+                Bar Chart
+            </option>
+
+
+            <option value="histogram">
+                Histogram
+            </option>
+
+
+            <option value="pie">
+                Pie Chart
+            </option>
+
+
+            <option value="scatter">
+                Scatter Plot
+            </option>
+
+
+            <option value="box">
+                Box Plot
+            </option>
+
+
+            <option value="heatmap">
+                Correlation Heatmap
+            </option>
+
+
+        </select>
+
+
+        <label>
+            Select X-Axis Column
+        </label>
+
+
+        <select name="x_column">
+
+            <option value="">
+                Select Column
+            </option>
+
+            {% for column in columns %}
+
+            <option value="{{ column }}">
+                {{ column }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <label>
+            Select Y-Axis Column
+        </label>
+
+
+        <select name="y_column">
+
+            <option value="">
+                Select Column
+            </option>
+
+            {% for column in numerical_columns %}
+
+            <option value="{{ column }}">
+                {{ column }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <button type="submit" class="generate-button">
+
+            Generate Visualization
+
+        </button>
+
+
+    </form>
+
+
+    <!-- DISPLAY GRAPH -->
+
+
+    {% if graph %}
+
+
+    <div class="chart-card">
+
+
+        <h2>
+            {{ graph_title }}
+        </h2>
+
+
+        <img src="data:image/png;base64,{{ graph }}">
+
+
+    </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+{% endblock %}

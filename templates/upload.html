@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Upload Data
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="upload-page">
+
+
+    <h1>
+        Upload Student Dataset
+    </h1>
+
+
+    <p class="lead">
+
+        Upload your CSV dataset
+        to begin the machine learning pipeline.
+
+    </p>
+
+
+    <form method="POST"
+          enctype="multipart/form-data">
+
+
+        <label>
+            Select CSV File
+        </label>
+
+
+        <input type="file"
+               name="file"
+               accept=".csv"
+               required>
+
+
+        <br>
+
+
+        <button type="submit">
+
+            Upload Dataset
+
+        </button>
+
+
+    </form>
+
+
+</div>
+
+
+{% endblock %}

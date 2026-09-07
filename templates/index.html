@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+HOME
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="home-page">
+
+    <div class="hero-copy">
+
+        <span class="portal-badge">
+            Placement Portal
+        </span>
+
+        <h1>
+            Student Placement Prediction
+        </h1>
+
+        <p class="lead">
+            A smart platform for analyzing student data and predicting placement outcomes with machine learning.
+        </p>
+
+        <p class="intro">
+            This portal helps students, faculty, and placement teams upload academic records,
+            clean the dataset, understand missing values, transform features, visualize trends,
+            and generate placement predictions with confidence.
+        </p>
+
+        <div class="cta-row">
+            <a class="button" href="{{ url_for('upload') }}">
+                Get Started
+            </a>
+            <span class="mini-note">
+                From upload to prediction in one workflow
+            </span>
+        </div>
+
+    </div>
+
+    <div class="hero-panel">
+        <div class="portal-box">
+            <div class="panel-header">
+                Portal Overview
+            </div>
+            <ul class="check-list">
+                <li>Upload and manage student datasets</li>
+                <li>Review summary and data quality</li>
+                <li>Fix missing values and encode labels</li>
+                <li>Visualize performance patterns</li>
+                <li>Predict placement success</li>
+            </ul>
+        </div>
+    </div>
+
+    <section class="features-section">
+
+        <h2>Why this portal?</h2>
+
+        <div class="feature-grid">
+
+            <article class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Data Summary</h3>
+                <p>Understand your dataset with quick insights, counts, and structure before model building.</p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon">🧹</div>
+                <h3>Missing Values</h3>
+                <p>Clean noisy data and handle incomplete records to improve prediction quality.</p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>Encoding & Scaling</h3>
+                <p>Transform categorical and numerical data for effective machine learning processing.</p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3>Visualization</h3>
+                <p>Explore relationships, trends, and hidden patterns across student performance metrics.</p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Prediction</h3>
+                <p>Generate placement predictions using a trained model tailored to student data.</p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon">✅</div>
+                <h3>Decision Support</h3>
+                <p>Support smarter placement decisions using data-based insights and predictive analytics.</p>
+            </article>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

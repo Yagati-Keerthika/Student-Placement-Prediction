@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Data Set Summary
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="summary-page">
+
+
+    <h1>
+        Data Set Summary
+    </h1>
+
+
+    <h3>
+        Dataset
+    </h3>
+
+
+    <p>
+        {{ filename }}
+    </p>
+
+
+    <div class="dataset-info">
+
+        No of rows {{ rows }}
+
+        <br>
+
+        No of columns {{ columns }}
+
+    </div>
+
+
+    <!-- FIRST 10 ROWS -->
+
+
+    <div>
+
+        <h2>
+            First 10 Rows
+        </h2>
+
+
+        <div class="table-container">
+
+            {{ preview|safe }}
+
+        </div>
+
+    </div>
+
+
+    <!-- LAST 10 ROWS -->
+
+
+    <div>
+
+        <h2>
+            Last 10 Rows
+        </h2>
+
+
+        <div class="table-container">
+
+            {{ tail|safe }}
+
+        </div>
+
+    </div>
+
+
+    <!-- MISSING VALUES -->
+
+
+    <div class="summary-section">
+
+        <h2>
+            Missing Values
+        </h2>
+
+
+        <div class="table-container table-scroll-box">
+
+            {{ missing_summary|safe }}
+
+        </div>
+
+
+        <div class="missing-summary-list">
+
+            {% for column in missing_columns %}
+
+            <span class="missing-pill">
+                {{ column }}
+            </span>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- DATA TYPES AND MEMORY -->
+
+
+    <div>
+
+        <h2>
+            Column Data Type and Memory
+        </h2>
+
+
+        <div class="info-container">
+
+            <pre>{{ info }}</pre>
+
+        </div>
+
+    </div>
+
+
+    <!-- STATISTICAL INFORMATION -->
+
+
+    <div>
+
+        <h2>
+            Statistical Information
+        </h2>
+
+
+        <div class="table-container">
+
+            {{ describe|safe }}
+
+        </div>
+
+    </div>
+
+
+    <!-- NUMERICAL COLUMNS -->
+
+
+    <div>
+
+        <h2>
+            Numerical Columns
+        </h2>
+
+
+        <div class="column-list">
+
+            {% for column in numerical_columns %}
+
+            {{ column }}
+
+            <br>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- CATEGORICAL COLUMNS -->
+
+
+    <div>
+
+        <h2>
+            Categorical Columns
+        </h2>
+
+
+        <div class="column-list">
+
+            {% for column in categorical_columns %}
+
+            {{ column }}
+
+            <br>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <p class="lead">
+
+        Dataset uploaded successfully.
+
+    </p>
+
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Scaling
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="pipeline-page">
+
+
+    <h1>
+        Feature Scaling
+    </h1>
+
+
+    <h3>
+        Dataset
+    </h3>
+
+
+    <p>
+        {{ filename }}
+    </p>
+
+
+    <h2>
+        Numerical Columns
+    </h2>
+
+
+    <form method="POST" class="pipeline-form">
+
+
+        <div class="checkbox-group">
+
+            {% for column in numerical_columns %}
+
+            <label class="check-item">
+                <input type="checkbox" name="columns" value="{{ column }}" checked>
+                {{ column }}
+            </label>
+
+            {% endfor %}
+
+        </div>
+
+
+        <label>
+            Select Scaling Method
+        </label>
+
+
+        <select name="scaling_method" required>
+
+
+            <option value="">
+                Select Method
+            </option>
+
+
+            <option value="standard">
+                Standard Scaler
+            </option>
+
+
+            <option value="minmax">
+                Min-Max Scaler
+            </option>
+
+
+            <option value="normalize">
+                Normalization
+            </option>
+
+
+        </select>
+
+
+        <button type="submit">
+
+            Apply Scaling
+
+        </button>
+
+
+    </form>
+
+
+    {% if method_name %}
+
+    <h2>
+
+        Applied Method:
+        {{ method_name }}
+
+    </h2>
+
+    {% endif %}
+
+
+    {% if table %}
+
+    <h2>
+        Scaled Dataset
+    </h2>
+
+
+    <div class="table-container">
+
+        {{ table|safe }}
+
+    </div>
+
+    {% endif %}
+
+
+</div>
+
+
+{% endblock %}

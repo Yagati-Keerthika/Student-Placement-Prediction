@@ -1,0 +1,17 @@
+.idea/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Generated/uploaded files
+uploads/
+processed/
+
+# Environment/secrets
+.env

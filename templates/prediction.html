@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Placement Prediction
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="prediction-page">
+
+
+    <h1>
+        Student Placement Prediction
+    </h1>
+
+
+    <p class="lead">
+
+        Train a machine learning model
+        using the uploaded student dataset.
+
+    </p>
+
+
+    {% if error %}
+
+        <p class="error">
+
+            {{ error }}
+
+        </p>
+
+    {% endif %}
+
+
+    {% if target_column %}
+
+        <h3>
+            Target Column
+        </h3>
+
+
+        <p>
+            {{ target_column }}
+        </p>
+
+
+        <form method="POST">
+
+
+            <button type="submit">
+
+                Train Prediction Model
+
+            </button>
+
+
+        </form>
+
+    {% endif %}
+
+
+    {% if prediction_result %}
+
+        <div class="success-box">
+
+            <h2>
+                {{ prediction_result }}
+            </h2>
+
+
+            {% if accuracy %}
+
+                <p>
+
+                    Model Accuracy:
+
+                    {{ "%.2f"|format(accuracy * 100) }} %
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+
+</div>
+
+
+{% endblock %}
