@@ -22,6 +22,8 @@ from linear_regression import prepare_linear_regression_page
 from logistic_regression import prepare_logistic_regression_page
 from decision_tree import prepare_decision_tree_page
 from random_forest import prepare_random_forest_page
+from boosting import prepare_boosting_page
+from k_means import predict_kmeans, train_kmeans
 
 
 # Preprocessing
@@ -1137,6 +1139,88 @@ def random_forest():
         filename=filename,
         **page_data
     )
+
+
+# =========================================================
+# BOOSTING MODELS FOR PLACEMENT CLASSIFICATION
+# =========================================================
+
+@app.route(
+    "/boosting",
+    methods=["GET", "POST"]
+)
+def boosting():
+
+    filename = session.get("dataset")
+
+    if filename is None:
+
+        return redirect("/upload")
+
+    filepath = os.path.join(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+    df = pd.read_csv(filepath)
+
+    page_data = prepare_boosting_page(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    return render_template(
+        "boosting.html",
+        filename=filename,
+        **page_data
+    )
+
+
+# =========================================================
+# K-MEANS CLUSTERING
+# =========================================================
+
+@app.route(
+    "/k_means",
+    methods=["GET", "POST"]
+)
+def k_means():
+
+    filename = session.get("dataset")
+
+    if filename is None:
+        return redirect("/upload")
+
+    filepath = os.path.join(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+    df = pd.read_csv(filepath)
+    page_data = train_kmeans(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    if request.method == "POST" and request.form.get("action") == "predict":
+        page_data = predict_kmeans(df, request.form, page_data)
+
+    return render_template(
+        "k_means.html",
+        filename=filename,
+        **page_data
+    )
+
+
+@app.route(
+    "/adaboost",
+    methods=["GET", "POST"]
+)
+def adaboost():
+
+    return boosting()
 
 
 # =========================================================

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}
+K-Means Clustering
+{% endblock %}
+
+{% block content %}
+
+<div class="prediction-page logistic-page">
+    <h1>K-Means Clustering</h1>
+    <p class="lead">Select the features you want to use, create clusters, and predict the cluster for a new student.</p>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <input type="hidden" name="action" value="train">
+
+        <div class="form-section logistic-feature-list">
+            <h3>Select Input Features</h3>
+            {% for column in feature_columns %}
+            <label>
+                <input type="checkbox" name="feature" value="{{ column }}" {% if column in selected_features %}checked{%
+                    endif %}>
+                {{ column }}
+            </label>
+            {% endfor %}
+        </div>
+
+        <div class="form-section">
+            <h3>Number of Clusters</h3>
+            <input type="number" name="n_clusters" min="2" max="20" value="{{ n_clusters }}" required>
+        </div>
+
+        <button type="submit">Create Clusters</button>
+    </form>
+
+    {% if metrics %}
+    <div class="success-box logistic-metrics">
+        <h3>Clustering Results</h3>
+        <p><strong>Selected Features:</strong> {{ metrics.selected_features | join(', ') }}</p>
+        <p><strong>Number of Clusters:</strong> {{ metrics.n_clusters }}</p>
+        <p><strong>Training Samples:</strong> {{ metrics.training_samples }}</p>
+        <p><strong>Samples Per Cluster:</strong> {{ metrics.cluster_counts | join(', ') }}</p>
+        <p><strong>Placement Rate Per Cluster:</strong> {{ metrics.placement_rates | join('%, ') }}%</p>
+        <h4>Cluster Centers</h4>
+        {{ metrics.cluster_centers | safe }}
+    </div>
+
+    <form method="POST">
+        <input type="hidden" name="action" value="predict">
+        {% for column in selected_features %}
+        <input type="hidden" name="feature" value="{{ column }}">
+        {% endfor %}
+        <input type="hidden" name="n_clusters" value="{{ n_clusters }}">
+
+        <div class="form-section">
+            <h3>Predict a Cluster</h3>
+            {% for column in selected_features %}
+            <div class="input-row">
+                <label for="{{ column }}">{{ column }}:</label>
+                {% if column in input_options %}
+                <select name="{{ column }}" id="{{ column }}" required>
+                    <option value="">Select {{ column }}</option>
+                    {% for option in input_options[column] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                <input type="number" step="0.01" name="{{ column }}" id="{{ column }}" required>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit">Predict Cluster</button>
+    </form>
+    {% endif %}
+
+    {% if prediction_result is not none %}
+    <div class="success-box logistic-result">
+        <h2>Predicted Placement Chance: {{ prediction_result }}</h2>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
