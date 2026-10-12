@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}
+PCA and K-Means
+{% endblock %}
+
+{% block content %}
+
+<div class="prediction-page">
+    <h1>PCA + K-Means Clustering</h1>
+    <p class="lead">Train K-Means using PCA and predict the cluster of a new student.</p>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <h2>Predict Placement Cluster (PCA-based)</h2>
+    <form method="POST" class="pca-prediction-form">
+        <input type="hidden" name="action" value="predict">
+        <input type="hidden" name="feature" value="cgpa">
+        <input type="hidden" name="feature" value="aptitude_score">
+        <input type="hidden" name="feature" value="coding_skill_score">
+        <input type="hidden" name="n_clusters" value="3">
+
+        <label for="cgpa">CGPA</label>
+        <input id="cgpa" name="cgpa" type="number" step="any" placeholder="e.g. 7.8" required>
+
+        <label for="aptitude_score">Aptitude Score</label>
+        <input id="aptitude_score" name="aptitude_score" type="number" step="any" placeholder="e.g. 72.5" required>
+
+        <label for="coding_skill_score">Coding Skill Score</label>
+        <input id="coding_skill_score" name="coding_skill_score" type="number" step="any" placeholder="e.g. 80.0"
+            required>
+
+        <button type="submit">Predict Cluster</button>
+    </form>
+
+    {% if metrics %}
+    <hr>
+    <h3>Training Result</h3>
+    <div class="pca-metrics">
+        <p><strong>Principal Components</strong> {{ metrics.n_components }}</p>
+        <p><strong>Variance Retained</strong> {{ metrics.variance_retained }}%</p>
+        <p><strong>Silhouette Score</strong> {{ metrics.silhouette_score }}</p>
+        <p><strong>Inertia</strong> {{ metrics.inertia }}</p>
+    </div>
+    {% endif %}
+
+    {% if prediction_result %}
+    <hr>
+    <p class="prediction-output"><strong>Predicted Cluster:</strong> {{ prediction_result }}</p>
+    {% endif %}
+</div>
+
+{% endblock %}

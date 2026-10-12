@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}
+ROC Curve Comparison
+{% endblock %}
+
+{% block content %}
+<div class="prediction-page logistic-page">
+    <h1>ROC Curve Comparison</h1>
+    <p class="lead">
+        Compare logistic regression, decision tree, random forest, AdaBoost, and XGBoost
+        using the same stratified 80/20 train/test split.
+    </p>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-section">
+            <h3>Target feature</h3>
+            <select name="target_feature" required>
+                {% for column in target_candidates %}
+                <option value="{{ column }}" {% if column == target_column %}selected{% endif %}>
+                    {{ column }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-section logistic-feature-list">
+            <h3>Select numeric input features</h3>
+            {% for column in feature_columns %}
+            <label>
+                <input type="checkbox" name="feature" value="{{ column }}"
+                    {% if column in selected_features %}checked{% endif %}>
+                {{ column }}
+            </label>
+            {% endfor %}
+        </div>
+
+        <button type="submit">Compare ROC Curves</button>
+    </form>
+
+    {% if metrics %}
+    <div class="success-box logistic-metrics">
+        <h3>Evaluation Details</h3>
+        <p><strong>Target:</strong> {{ metrics.target_column }}</p>
+        <p><strong>Positive class:</strong> {{ metrics.positive_label }}</p>
+        <p><strong>Negative class:</strong> {{ metrics.negative_label }}</p>
+        <p><strong>Features:</strong> {{ metrics.features | join(', ') }}</p>
+        <p><strong>Training rows:</strong> {{ metrics.training_samples }}</p>
+        <p><strong>Test rows:</strong> {{ metrics.testing_samples }}</p>
+
+        <h4>ROC AUC ranking</h4>
+        <table class="confusion-matrix">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Classifier</th>
+                    <th>ROC AUC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in metrics.results %}
+                <tr>
+                    <th>{{ loop.index }}</th>
+                    <td>{{ result.name }}</td>
+                    <td>{{ "%.4f"|format(result.auc) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <img class="analysis-chart" src="data:image/png;base64,{{ graph }}" alt="ROC curve comparison">
+    <p>
+        ROC AUC summarizes discrimination across thresholds. For imbalanced outcomes,
+        also consider precision and recall before choosing a model.
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

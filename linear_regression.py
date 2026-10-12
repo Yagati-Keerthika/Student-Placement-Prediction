@@ -20,6 +20,9 @@ def build_linear_regression_model(df, feature_columns, target_column):
     if target_column not in df.columns:
         return None, {"error": "Selected target column does not exist."}
 
+    if not pd.api.types.is_numeric_dtype(df[target_column]):
+        return None, {"error": "Linear regression requires a numeric target feature. Use logistic regression for placement labels."}
+
     model_df = df[selected_features + [target_column]].dropna().reset_index(drop=True)
 
     if model_df.empty:

@@ -6,6 +6,8 @@ from sklearn.linear_model import LogisticRegression
 
 from sklearn.metrics import accuracy_score
 
+from analysis_utils import get_analysis_feature_columns
+
 
 # =========================================================
 # TRAIN MACHINE LEARNING MODEL
@@ -15,9 +17,8 @@ def train_model(df, target_column):
 
     # Separate input features
 
-    X = df.drop(
-        columns=[target_column]
-    )
+    feature_columns = get_analysis_feature_columns(df, target_column)
+    X = df[feature_columns]
 
 
     # Target column

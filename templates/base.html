@@ -88,8 +88,24 @@
                     BOOSTING
                 </a>
 
+                <a href="{{ url_for('k_fold') }}">
+                    K-FOLD CROSS-VALIDATION
+                </a>
+
                 <a href="{{ url_for('k_means') }}">
                     K-MEANS CLUSTERING
+                </a>
+
+                <a href="{{ url_for('pca') }}">
+                    PCA + K-MEANS
+                </a>
+
+                <a href="{{ url_for('dimensionality_reduction_comparison') }}">
+                    PCA / t-SNE / UMAP
+                </a>
+
+                <a href="{{ url_for('roc_comparison') }}">
+                    ROC CURVE COMPARISON
                 </a>
 
                 <a href="{{ url_for('prediction') }}">

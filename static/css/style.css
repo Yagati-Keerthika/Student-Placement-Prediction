@@ -1160,6 +1160,46 @@ select {
 }
 
 
+.pca-prediction-form input[type="number"] {
+
+    width: 100%;
+
+    max-width: 360px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #b9c3d1;
+
+    border-radius: 5px;
+
+    font-size: 16px;
+
+}
+
+
+.pca-metrics p {
+
+    margin: 8px 0;
+
+}
+
+
+.pca-metrics strong {
+
+    display: inline-block;
+
+    min-width: 180px;
+
+}
+
+
+.prediction-output {
+
+    font-size: 17px;
+
+}
+
+
 .success-box {
 
     margin-top: 30px;
@@ -1169,6 +1209,18 @@ select {
     background-color: #dcfce7;
 
     border-radius: 8px;
+
+}
+
+.analysis-chart {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    margin: 24px auto;
 
 }
 

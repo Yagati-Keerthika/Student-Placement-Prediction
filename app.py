@@ -18,12 +18,21 @@ import numpy as np
 
 # Machine Learning
 from main import prepare_prediction_page
-from linear_regression import prepare_linear_regression_page
-from logistic_regression import prepare_logistic_regression_page
-from decision_tree import prepare_decision_tree_page
-from random_forest import prepare_random_forest_page
-from boosting import prepare_boosting_page
+from linear_regression import build_linear_regression_model, predict_linear_regression
+from logistic_regression import build_logistic_regression_model, predict_logistic_regression
+from decision_tree import build_decision_tree_model, predict_decision_tree
+from random_forest import build_random_forest_model, predict_random_forest
+from boosting import (
+    build_adaboost_model,
+    build_xgboost_model,
+    predict_adaboost
+)
 from k_means import predict_kmeans, train_kmeans
+from k_fold import prepare_k_fold_page
+from pca import run_pca_kmeans
+from dimensionality_comparison import run_dimensionality_comparison
+from roc_comparison import compare_roc_curves
+from analysis_utils import get_numeric_analysis_features
 
 
 # Preprocessing
@@ -85,6 +94,145 @@ os.makedirs(
     PROCESSED_FOLDER,
     exist_ok=True
 )
+
+
+def _model_form_data(df, form_data):
+    target_candidates = list(df.columns)
+    target_column = form_data.get("target_feature")
+
+    if target_column not in target_candidates:
+        target_column = "placement_status" if "placement_status" in target_candidates else target_candidates[-1]
+
+    numeric_columns = get_numeric_analysis_features(df, target_column)
+    selected_features = [
+        column for column in form_data.getlist("feature")
+        if column in numeric_columns
+    ]
+    if not selected_features:
+        selected_features = [column for column in numeric_columns if column != target_column]
+
+    return numeric_columns, target_candidates, selected_features, target_column
+
+
+def _prediction_values(form_data, selected_features):
+    if not selected_features or any(form_data.get(column) is None for column in selected_features):
+        return None
+
+    try:
+        return [float(form_data.get(column)) for column in selected_features]
+    except (TypeError, ValueError):
+        return None
+
+
+def prepare_linear_regression_page(df, form_data, submitted=False):
+    numeric_columns, _, selected_features, target_column = _model_form_data(df, form_data)
+    page_data = {
+        "numeric_columns": numeric_columns,
+        "selected_features": selected_features,
+        "target_column": target_column,
+        "metrics": None,
+        "prediction_result": None,
+        "error": None
+    }
+
+    if submitted:
+        model, metrics = build_linear_regression_model(df, selected_features, target_column)
+        if metrics.get("error"):
+            page_data["error"] = metrics["error"]
+        else:
+            page_data["metrics"] = metrics
+            values = _prediction_values(form_data, selected_features)
+            if values is not None:
+                page_data["prediction_result"] = predict_linear_regression(model, values, selected_features)
+
+    return page_data
+
+
+def _prepare_classifier_page(df, form_data, submitted, build_model, predict_model, options=None):
+    numeric_columns, target_candidates, selected_features, target_column = _model_form_data(df, form_data)
+    page_data = {
+        "numeric_columns": numeric_columns,
+        "target_candidates": target_candidates,
+        "selected_features": selected_features,
+        "target_column": target_column,
+        "metrics": None,
+        "prediction_result": None,
+        "prediction_probability": None,
+        "error": None
+    }
+    if options:
+        page_data.update(options)
+
+    if submitted:
+        model_result = build_model(df, selected_features, target_column)
+        model, metrics, target_labels = model_result
+        if metrics.get("error"):
+            page_data["error"] = metrics["error"]
+        else:
+            page_data["metrics"] = metrics
+            values = _prediction_values(form_data, selected_features)
+            if values is not None:
+                result, probability = predict_model(model, values, selected_features, target_labels)
+                page_data["prediction_result"] = result
+                page_data["prediction_probability"] = probability
+
+    return page_data
+
+
+def prepare_logistic_regression_page(df, form_data, submitted=False):
+    return _prepare_classifier_page(
+        df, form_data, submitted,
+        build_logistic_regression_model,
+        predict_logistic_regression
+    )
+
+
+def prepare_decision_tree_page(df, form_data, submitted=False):
+    criterion = form_data.get("criterion", "entropy")
+    max_depth = int(form_data.get("max_depth", 10))
+    page_data = _prepare_classifier_page(
+        df, form_data, submitted,
+        lambda data, features, target: build_decision_tree_model(
+            data, features, target, criterion=criterion, max_depth=max_depth
+        ),
+        predict_decision_tree,
+        {"criterion_options": ["gini", "entropy", "log_loss"], "max_depth_options": [3, 5, 10, 15],
+         "criterion": criterion, "max_depth": max_depth}
+    )
+    return page_data
+
+
+def prepare_random_forest_page(df, form_data, submitted=False):
+    n_estimators = int(form_data.get("n_estimators", 30))
+    max_depth = int(form_data.get("max_depth", 12))
+    return _prepare_classifier_page(
+        df, form_data, submitted,
+        lambda data, features, target: build_random_forest_model(
+            data, features, target, n_estimators=n_estimators, max_depth=max_depth
+        ),
+        predict_random_forest,
+        {"n_estimators": n_estimators, "max_depth": max_depth, "max_depth_options": [5, 8, 12, 16]}
+    )
+
+
+def prepare_boosting_page(df, form_data, submitted=False):
+    selected_model = form_data.get("model", "AdaBoost")
+    n_estimators = int(form_data.get("n_estimators", 50))
+    learning_rate = float(form_data.get("learning_rate", 1.0))
+    builder = build_xgboost_model if selected_model == "XGBoost" else build_adaboost_model
+    predictor = predict_adaboost
+    page_data = _prepare_classifier_page(
+        df, form_data, submitted,
+        lambda data, features, target: builder(
+            data, features, target, n_estimators=n_estimators, learning_rate=learning_rate
+        ),
+        predictor,
+        {"model_options": ["AdaBoost", "XGBoost"], "selected_model": selected_model,
+         "n_estimators": n_estimators, "learning_rate": learning_rate}
+    )
+    if page_data["metrics"]:
+        page_data["metrics"]["model_name"] = selected_model
+    return page_data
 
 
 # =========================================================
@@ -1178,6 +1326,40 @@ def boosting():
 
 
 # =========================================================
+# K-FOLD CROSS-VALIDATION
+# =========================================================
+
+@app.route(
+    "/k_fold",
+    methods=["GET", "POST"]
+)
+def k_fold():
+
+    filename = session.get("dataset")
+
+    if filename is None:
+        return redirect("/upload")
+
+    filepath = os.path.join(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+    df = pd.read_csv(filepath)
+    page_data = prepare_k_fold_page(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    return render_template(
+        "k_fold.html",
+        filename=filename,
+        **page_data
+    )
+
+
+# =========================================================
 # K-MEANS CLUSTERING
 # =========================================================
 
@@ -1209,6 +1391,98 @@ def k_means():
 
     return render_template(
         "k_means.html",
+        filename=filename,
+        **page_data
+    )
+
+
+# =========================================================
+# PCA AND K-MEANS CLUSTERING
+# =========================================================
+
+@app.route(
+    "/pca",
+    methods=["GET", "POST"]
+)
+def pca():
+
+    filename = session.get("dataset")
+
+    if filename is None:
+        return redirect("/upload")
+
+    filepath = os.path.join(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+    df = pd.read_csv(filepath)
+    page_data = run_pca_kmeans(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    return render_template(
+        "pca.html",
+        filename=filename,
+        **page_data
+    )
+
+
+# =========================================================
+# DIMENSIONALITY REDUCTION COMPARISON
+# =========================================================
+
+@app.route(
+    "/dimensionality-reduction",
+    methods=["GET", "POST"]
+)
+def dimensionality_reduction_comparison():
+    filename = session.get("dataset")
+
+    if filename is None:
+        return redirect("/upload")
+
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    df = pd.read_csv(filepath)
+    page_data = run_dimensionality_comparison(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    return render_template(
+        "dimensionality_comparison.html",
+        filename=filename,
+        **page_data
+    )
+
+
+# =========================================================
+# ROC CURVE CLASSIFIER COMPARISON
+# =========================================================
+
+@app.route(
+    "/roc-comparison",
+    methods=["GET", "POST"]
+)
+def roc_comparison():
+    filename = session.get("dataset")
+
+    if filename is None:
+        return redirect("/upload")
+
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    df = pd.read_csv(filepath)
+    page_data = compare_roc_curves(
+        df,
+        request.form,
+        request.method == "POST"
+    )
+
+    return render_template(
+        "roc_comparison.html",
         filename=filename,
         **page_data
     )

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}
+PCA, t-SNE, and UMAP Comparison
+{% endblock %}
+
+{% block content %}
+<div class="prediction-page logistic-page">
+    <h1>PCA vs t-SNE vs UMAP</h1>
+    <p class="lead">
+        Compare three 2D visualizations of the same stratified sample, colored by the selected target.
+        These methods are for visualization; the plots do not identify a universally best classifier.
+    </p>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-section">
+            <h3>Color points by</h3>
+            <select name="target_feature" required>
+                {% for column in target_candidates %}
+                <option value="{{ column }}" {% if column == target_column %}selected{% endif %}>
+                    {{ column }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-section logistic-feature-list">
+            <h3>Select numeric input features</h3>
+            {% for column in feature_columns %}
+            <label>
+                <input type="checkbox" name="feature" value="{{ column }}"
+                    {% if column in selected_features %}checked{% endif %}>
+                {{ column }}
+            </label>
+            {% endfor %}
+        </div>
+
+        <p>At most {{ max_samples }} stratified rows are used for all three plots.</p>
+        <button id="compare-methods-button" type="submit">Compare Methods</button>
+        <p id="comparison-loading" role="status" aria-live="polite" hidden>
+            Generating PCA, t-SNE, and UMAP plots. The first run may take about a minute.
+        </p>
+    </form>
+
+    {% if metrics %}
+    <div class="success-box logistic-metrics">
+        <h3>Comparison Details</h3>
+        <p><strong>Target:</strong> {{ metrics.target_column }}</p>
+        <p><strong>Features:</strong> {{ metrics.features | join(', ') }}</p>
+        <p><strong>Rows plotted:</strong> {{ metrics.samples }} of {{ metrics.original_samples }}</p>
+        <p><strong>PCA variance retained:</strong> {{ metrics.pca_variance_retained }}%</p>
+        <p>
+            t-SNE and UMAP produce coordinates for visualization; their axes and distances
+            should not be interpreted as directly comparable to PCA.
+        </p>
+    </div>
+    <img class="analysis-chart" src="data:image/png;base64,{{ graph }}"
+        alt="Side-by-side PCA, t-SNE, and UMAP visualizations">
+    {% endif %}
+</div>
+<script>
+    const comparisonForm = document.querySelector("form");
+    comparisonForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        document.getElementById("comparison-loading").hidden = false;
+        const button = document.getElementById("compare-methods-button");
+        button.disabled = true;
+        button.textContent = "Generating plots...";
+        window.setTimeout(function () {
+            comparisonForm.submit();
+        }, 50);
+    });
+</script>
+{% endblock %}

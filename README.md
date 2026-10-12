@@ -20,7 +20,24 @@ This project provides an interactive workflow for loading a student dataset, ins
   - Decision Tree
   - Random Forest
 - Select decision-tree and random-forest settings such as criterion, number of trees, and maximum depth
+- Compare PCA, t-SNE, and UMAP visualizations using the same stratified sample of up to 1,000 rows
+- Compare ROC curves and AUC scores for Logistic Regression, Decision Tree, Random Forest, AdaBoost, and XGBoost using one shared stratified test split
+- Exclude identifier columns and placement-derived salary fields from placement-classification features to avoid target leakage
 - Make predictions from entered feature values
+
+### PCA, t-SNE, and UMAP comparison
+
+The comparison page follows these steps:
+
+1. Choose a target column for point colors and at least two numeric input features.
+2. Remove rows without a target; fill missing feature values with their median.
+3. Use a stratified sample of at most 1,000 rows, then scale the features.
+4. Run PCA, t-SNE, and UMAP on the same scaled rows to get two coordinates per row.
+5. Draw one scatter plot per method, coloring points by the target class.
+
+PCA keeps directions with high overall variance. t-SNE focuses on keeping nearby
+points together, while UMAP also aims to preserve local neighborhoods. Their
+coordinates are for visualization, not a direct measure of model accuracy.
 
 ## Project Structure
 
@@ -31,6 +48,8 @@ This project provides an interactive workflow for loading a student dataset, ins
 - `logistic_regression.py`: logistic regression training and prediction
 - `decision_tree.py`: decision-tree training, metrics, visualization, and prediction
 - `random_forest.py`: random-forest training, metrics, visualization, and prediction
+- `dimensionality_comparison.py`: PCA, t-SNE, and UMAP visualization comparison
+- `roc_comparison.py`: shared-split ROC/AUC classifier comparison
 - `templates/`: HTML pages
 - `static/`: CSS and chart assets
 - `processed/`: generated processed datasets

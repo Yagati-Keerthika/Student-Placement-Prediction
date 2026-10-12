@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}
+K-Fold Cross-Validation
+{% endblock %}
+
+{% block content %}
+
+<div class="prediction-page logistic-page">
+    <h1>K-Fold Cross-Validation</h1>
+
+    <p class="lead">
+        Evaluate a classification model across stratified folds to see how consistently it performs.
+    </p>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-section logistic-feature-list">
+            <h3>Select Numeric Input Features</h3>
+            {% for column in numeric_columns %}
+            <label>
+                <input type="checkbox" name="feature" value="{{ column }}" {% if column in selected_features %}checked{% endif %}>
+                {{ column }}
+            </label>
+            {% endfor %}
+        </div>
+
+        <div class="form-section">
+            <h3>Select Target Feature</h3>
+            <select name="target_feature" required>
+                {% for column in target_candidates %}
+                <option value="{{ column }}" {% if column == target_column %}selected{% endif %}>
+                    {{ column }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-section">
+            <h3>Select Classification Model</h3>
+            <select name="model">
+                {% for model_key, model_name in model_options.items() %}
+                <option value="{{ model_key }}" {% if model_key == selected_model %}selected{% endif %}>
+                    {{ model_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-section">
+            <h3>Number of Folds</h3>
+            <input type="number" name="folds" min="2" max="10" value="{{ folds }}" required>
+        </div>
+
+        <button type="submit">Run Cross-Validation</button>
+    </form>
+
+    {% if metrics %}
+    <div class="success-box logistic-metrics">
+        <h3>Cross-Validation Results</h3>
+        <p><strong>Model:</strong> {{ metrics.model_name }}</p>
+        <p><strong>Target Feature:</strong> {{ target_column }}</p>
+        <p><strong>Input Features:</strong> {{ selected_features | join(', ') }}</p>
+        <p><strong>Valid Samples:</strong> {{ metrics.samples }}</p>
+        <p><strong>Folds:</strong> {{ metrics.folds }}</p>
+
+        <h4>Scores by Fold</h4>
+        <table class="confusion-matrix">
+            <thead>
+                <tr>
+                    <th>Fold</th>
+                    <th>Accuracy</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1 Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in metrics.fold_results %}
+                <tr>
+                    <th>{{ result.fold }}</th>
+                    <td>{{ "%.2f"|format(result.accuracy) }}%</td>
+                    <td>{{ "%.2f"|format(result.precision) }}%</td>
+                    <td>{{ "%.2f"|format(result.recall) }}%</td>
+                    <td>{{ "%.2f"|format(result.f1) }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h4>Mean Score (± Standard Deviation)</h4>
+        <table class="confusion-matrix">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Mean</th>
+                    <th>Standard Deviation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for metric in ["accuracy", "precision", "recall", "f1"] %}
+                <tr>
+                    <th>{{ metric|capitalize }}</th>
+                    <td>{{ "%.2f"|format(metrics.averages[metric]) }}%</td>
+                    <td>{{ "%.2f"|format(metrics.standard_deviations[metric]) }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
